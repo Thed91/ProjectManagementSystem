@@ -4,7 +4,7 @@ using PMS.Domain.Exceptions;
 
 namespace PMS.Domain.Entities
 {
-    public class Project : BaseEntity
+    public class Project : AuditableEntity
     {
         private Project() { }
 
@@ -15,7 +15,7 @@ namespace PMS.Domain.Entities
         public DateTime? StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
 
-        public static Project Create(string name, string description, string key)
+        public static Project Create(string name, string description, string key, Guid createdBy)
         {
             var project = new Project()
             {
@@ -24,19 +24,21 @@ namespace PMS.Domain.Entities
                 Description = description,
                 Key = key.ToUpper(),
                 Status = ProjectStatus.Planning,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = createdBy
             };
 
             return project;
         }
-        public void UpdateDetails(string name, string description)
+        public void UpdateDetails(string name, string description, Guid modifiedBy)
         {
             Name = name;
             Description = description;
             UpdatedAt = DateTime.UtcNow;
+            LastModifiedBy = modifiedBy;
         }
 
-        public void Start()
+        public void Start(Guid modifiedBy)
         {
             if (Status != ProjectStatus.Planning)
             {
@@ -46,14 +48,15 @@ namespace PMS.Domain.Entities
             Status = ProjectStatus.Active;
             StartDate = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
+            LastModifiedBy = modifiedBy;
         }
 
-        public void Complete()
+        public void Complete(Guid modifiedBy)
         {
             Status = ProjectStatus.Completed;
             EndDate = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
-
+            LastModifiedBy = modifiedBy;
         }
     }
 }

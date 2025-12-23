@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PMS.Application.Common.Interfaces;
 using PMS.Domain.Common;
 using PMS.Domain.Entities;
 
 namespace PMS.Persistence.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

@@ -14,6 +14,8 @@ namespace PMS.Persistence.Configurations
             builder.HasIndex(x => x.Key).IsUnique();
             builder.Property(x => x.Key).HasMaxLength(10).IsRequired();
             builder.Property(x => x.Status).HasConversion<string>();
+            builder.Property(p => p.CreatedBy).IsRequired();
+            builder.Property(p => p.LastModifiedBy).IsRequired(false);
             builder.HasQueryFilter(p => !p.IsDeleted);
         }
     }
@@ -31,6 +33,8 @@ namespace PMS.Persistence.Configurations
             builder.Property(x => x.Status).HasConversion<string>();
             builder.Property(x => x.Priority).HasConversion<string>();
             builder.Property(x => x.Type).HasConversion<string>();
+            builder.Property(p => p.CreatedBy).IsRequired();
+            builder.Property(p => p.LastModifiedBy).IsRequired(false);
             builder.HasQueryFilter(p => !p.IsDeleted);
         }
     }
