@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PMS.Application.Projects.Commands.CreateProject;
+using PMS.Application.Projects.Commands.DeleteProject;
+using PMS.Application.Projects.Commands.UpdateProject;
 using PMS.Application.Projects.Queries.GetProjectById;
 using PMS.Application.Projects.DTOs;
 using PMS.Application.Projects.Queries.GetProjects;
@@ -26,7 +28,7 @@ namespace PMS.API.Controllers
             return CreatedAtAction(nameof(CreateProject), new { id = result.Id }, result);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<ActionResult<ProjectDto>> GetProjectById(Guid id)
         {
             var query = new GetProjectByIdQuery { Id = id };
@@ -40,5 +42,20 @@ namespace PMS.API.Controllers
             var result = await _mediator.Send(query);
             return Ok(result);
         }
+
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<ProjectDto>> UpdateProject(Guid id, UpdateProjectCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return CreatedAtAction(nameof(UpdateProject), new { id = result.Id }, result);
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult<ProjectDto>> DeleteProject(Guid id, DeleteProjectCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return CreatedAtAction(nameof(DeleteProject), new { id = result.Id }, result);
+        }
+        
     }
 }

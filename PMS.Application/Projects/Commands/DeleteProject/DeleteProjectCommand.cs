@@ -6,6 +6,7 @@ namespace PMS.Application.Projects.Commands.DeleteProject
 {
     public class DeleteProjectCommand : IRequest<ProjectDto>
     {
-        public Guid Id { get; private set; }
+        public Guid Id { get; set; }
+        public Guid ModifiedBy { get; set; }
     }
 }

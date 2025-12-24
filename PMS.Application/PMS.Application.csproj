@@ -17,4 +17,8 @@
     <ProjectReference Include="..\PMS.Domain\PMS.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ProjectTasks\Queries\" />
+  </ItemGroup>
+
 </Project>

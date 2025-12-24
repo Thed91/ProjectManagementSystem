@@ -5,7 +5,7 @@ namespace PMS.Application.Projects.Commands.DeleteProject
     public class DeleteProjectCommandValidator : AbstractValidator<DeleteProjectCommand>
     {
         public DeleteProjectCommandValidator() {
-            RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required");
+            RuleFor(x => x.ModifiedBy).NotEmpty().WithMessage("Id is required");
         }
     }
 }

@@ -93,5 +93,19 @@ namespace PMS.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
             LastModifiedBy = modifiedBy;
         }
+
+        public void UpdateDetails(string title, string description, Guid modifiedBy)
+        {
+            Title = title;
+            Description = description;
+            UpdatedAt = DateTime.UtcNow;
+            LastModifiedBy = modifiedBy;
+        }
+
+        public void Delete(Guid modifiedBy)
+        {
+            IsDeleted =  true;
+            LastModifiedBy = modifiedBy;
+        }
     }
 }

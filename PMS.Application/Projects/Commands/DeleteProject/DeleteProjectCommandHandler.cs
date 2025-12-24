@@ -20,7 +20,7 @@ namespace PMS.Application.Projects.Commands.DeleteProject
                 throw new KeyNotFoundException($"Project with id {request.Id} not found");
             }
             
-            project.Delete(request.Id);
+            project.Delete(request.ModifiedBy);
             _context.Projects.Update(project);
             await _context.SaveChangesAsync(cancellationToken);
 
