@@ -1,3 +1,4 @@
+using PMS.API.Middleware;
 using PMS.Application;
 using PMS.Persistence;
 
@@ -17,6 +18,10 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+// Exception handling middleware - должен быть первым!
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
