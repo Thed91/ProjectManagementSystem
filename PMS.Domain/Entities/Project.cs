@@ -42,7 +42,7 @@ namespace PMS.Domain.Entities
         {
             if (Status != ProjectStatus.Planning)
             {
-                throw new DomainException("The project cannot be launched, Tatus Planning");
+                throw new DomainException("The project cannot be launched, Status Planning");
             }
 
             Status = ProjectStatus.Active;
@@ -55,6 +55,14 @@ namespace PMS.Domain.Entities
         {
             Status = ProjectStatus.Completed;
             EndDate = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+            LastModifiedBy = modifiedBy;
+        }
+        
+        public void Delete(Guid modifiedBy)
+        {
+            Status = ProjectStatus.Cancelled;
+            IsDeleted = true;
             UpdatedAt = DateTime.UtcNow;
             LastModifiedBy = modifiedBy;
         }
