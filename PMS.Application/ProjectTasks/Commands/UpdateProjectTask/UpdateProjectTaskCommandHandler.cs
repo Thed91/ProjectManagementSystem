@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PMS.Application.Common.Interfaces;
+using PMS.Application.Common.Models;
 using PMS.Application.ProjectTasks.DTOs;
 
 namespace PMS.Application.ProjectTasks.Commands.UpdateProjectTask;
@@ -10,11 +11,16 @@ public class UpdateProjectTaskCommandHandler : IRequestHandler<UpdateProjectTask
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly INotificationService _notificationService;
 
-    public UpdateProjectTaskCommandHandler(IApplicationDbContext context, IMapper mapper)
+    public UpdateProjectTaskCommandHandler(
+        IApplicationDbContext context,
+        IMapper mapper,
+        INotificationService notificationService)
     {
         _context = context;
         _mapper = mapper;
+        _notificationService = notificationService;
     }
 
     public async Task<ProjectTaskDto> Handle(UpdateProjectTaskCommand request, CancellationToken cancellationToken)
@@ -33,6 +39,29 @@ public class UpdateProjectTaskCommandHandler : IRequestHandler<UpdateProjectTask
         _context.ProjectTasks.Update(projectTask);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return _mapper.Map<ProjectTaskDto>(projectTask);
+        var result = _mapper.Map<ProjectTaskDto>(projectTask);
+
+        await _notificationService.SendToProjectAsync(projectTask.ProjectId, new NotificationDto
+        {
+            Type = nameof(NotificationType.TaskUpdated),
+            Title = "Task Updated",
+            Message = $"Task '{projectTask.Title}' has been updated",
+            Data = result,
+            ProjectId = projectTask.ProjectId
+        });
+
+        if (projectTask.AssigneeId.HasValue)
+        {
+            await _notificationService.SendToUserAsync(projectTask.AssigneeId.Value, new NotificationDto
+            {
+                Type = nameof(NotificationType.TaskUpdated),
+                Title = "Your Task Updated",
+                Message = $"Task '{projectTask.Title}' assigned to you has been updated",
+                Data = result,
+                UserId = projectTask.AssigneeId.Value
+            });
+        }
+
+        return result;
     }
 }
