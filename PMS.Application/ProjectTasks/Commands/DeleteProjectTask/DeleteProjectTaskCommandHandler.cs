@@ -1,3 +1,4 @@
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PMS.Application.Common.Interfaces;
@@ -8,9 +9,12 @@ namespace PMS.Application.ProjectTasks.Commands.DeleteProjectTask;
 public class DeleteProjectTaskCommandHandler : IRequestHandler<DeleteProjectTaskCommand, ProjectTaskDto>
 {
     private readonly IApplicationDbContext _context;
-    public DeleteProjectTaskCommandHandler(IApplicationDbContext context)
+    private readonly IMapper _mapper;
+
+    public DeleteProjectTaskCommandHandler(IApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     public async Task<ProjectTaskDto> Handle(DeleteProjectTaskCommand request, CancellationToken cancellationToken)
@@ -24,28 +28,7 @@ public class DeleteProjectTaskCommandHandler : IRequestHandler<DeleteProjectTask
         projectTask.Delete(request.ModifiedBy);
         _context.ProjectTasks.Update(projectTask);
         await _context.SaveChangesAsync(cancellationToken);
-        
-        return new ProjectTaskDto
-        {
-            Id = projectTask.Id,
-            ProjectId = projectTask.ProjectId,
-            Title = projectTask.Title,
-            Description = projectTask.Description,
-            TaskKey = projectTask.TaskKey,
-            Status = projectTask.Status.ToString(),
-            Priority = projectTask.Priority.ToString(),
-            Type = projectTask.Type.ToString(),
-            AssigneeId = projectTask.AssigneeId,
-            ReporterId = projectTask.ReporterId,
-            DueDate = projectTask.DueDate,
-            EstimatedHours = projectTask.EstimatedHours,
-            ActualHours = projectTask.ActualHours,
-            ParentTaskId = projectTask.ParentTaskId,
-            CreatedBy = projectTask.CreatedBy,
-            LastModifiedBy = projectTask.LastModifiedBy,
-            CreatedAt = projectTask.CreatedAt,
-            UpdatedAt = projectTask.UpdatedAt,
-            IsDeleted = projectTask.IsDeleted
-        };
+
+        return _mapper.Map<ProjectTaskDto>(projectTask);
     }
 }

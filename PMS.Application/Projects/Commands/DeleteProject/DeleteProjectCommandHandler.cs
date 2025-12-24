@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PMS.Application.Common.Interfaces;
 using PMS.Application.Projects.DTOs;
@@ -8,9 +9,11 @@ namespace PMS.Application.Projects.Commands.DeleteProject
     public class DeleteProjectCommandHandler : IRequestHandler<DeleteProjectCommand, ProjectDto>
     {
         private readonly IApplicationDbContext _context;
+        private readonly IMapper _mapper;
         
-        public DeleteProjectCommandHandler(IApplicationDbContext context) {
+        public DeleteProjectCommandHandler(IApplicationDbContext context, IMapper mapper) {
             _context = context;
+            _mapper = mapper;
         }
         public async Task<ProjectDto> Handle(DeleteProjectCommand request, CancellationToken cancellationToken)
         {
@@ -24,21 +27,7 @@ namespace PMS.Application.Projects.Commands.DeleteProject
             _context.Projects.Update(project);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return new ProjectDto
-            {
-                Id = project.Id,
-                Name = project.Name,
-                Description = project.Description,
-                Key = project.Key,
-                Status = project.Status.ToString(),
-                StartDate = project.StartDate,
-                EndDate = project.EndDate,
-                CreatedAt = project.CreatedAt,
-                UpdatedAt = project.UpdatedAt,
-                IsDeleted = project.IsDeleted,
-                CreatedBy = project.CreatedBy,
-                LastModifiedBy = project.LastModifiedBy
-            };
+            return _mapper.Map<ProjectDto>(project);
         }
     }
 }

@@ -1,3 +1,5 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PMS.Application.Common.Interfaces;
@@ -9,10 +11,12 @@ namespace PMS.Application.ProjectTasks.Queries.GetProjectTasks;
 public class GetProjectTasksQueryHandler : IRequestHandler<GetProjectTasksQuery, PaginatedList<ProjectTaskDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public GetProjectTasksQueryHandler(IApplicationDbContext context)
+    public GetProjectTasksQueryHandler(IApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     public async Task<PaginatedList<ProjectTaskDto>> Handle(GetProjectTasksQuery request, CancellationToken cancellationToken)
@@ -29,28 +33,7 @@ public class GetProjectTasksQueryHandler : IRequestHandler<GetProjectTasksQuery,
         var projectTasks = await query
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
-            .Select(task => new ProjectTaskDto
-            {
-                Id = task.Id,
-                ProjectId = task.ProjectId,
-                Title = task.Title,
-                Description = task.Description,
-                TaskKey = task.TaskKey,
-                Status = task.Status.ToString(),
-                Priority = task.Priority.ToString(),
-                Type = task.Type.ToString(),
-                AssigneeId = task.AssigneeId,
-                ReporterId = task.ReporterId,
-                DueDate = task.DueDate,
-                EstimatedHours = task.EstimatedHours,
-                ActualHours = task.ActualHours,
-                ParentTaskId = task.ParentTaskId,
-                CreatedBy = task.CreatedBy,
-                LastModifiedBy = task.LastModifiedBy,
-                CreatedAt = task.CreatedAt,
-                UpdatedAt = task.UpdatedAt,
-                IsDeleted = task.IsDeleted
-            })
+            .ProjectTo<ProjectTaskDto>(_mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);
 
         return new PaginatedList<ProjectTaskDto>(projectTasks, totalCount, request.PageNumber, request.PageSize);

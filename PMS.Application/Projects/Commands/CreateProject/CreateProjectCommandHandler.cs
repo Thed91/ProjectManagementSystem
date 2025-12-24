@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using PMS.Application.Common.Interfaces;
 using PMS.Application.Projects.DTOs;
 using PMS.Domain.Entities;
@@ -8,10 +9,12 @@ namespace PMS.Application.Projects.Commands.CreateProject
     public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand, ProjectDto>
     {
         private readonly IApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public CreateProjectCommandHandler(IApplicationDbContext context)
+        public CreateProjectCommandHandler(IApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<ProjectDto> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
@@ -25,17 +28,7 @@ namespace PMS.Application.Projects.Commands.CreateProject
             _context.Projects.Add(project);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return new ProjectDto
-            {
-                Id = project.Id,
-                Name = project.Name,
-                Description = project.Description,
-                Key = project.Key,
-                Status = project.Status.ToString(),
-                StartDate = project.StartDate,
-                EndDate = project.EndDate,
-                CreatedAt = project.CreatedAt
-            };
+            return _mapper.Map<ProjectDto>(project);
         }
     }
 }
