@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using PMS.Application.Common.Interfaces;
+using PMS.Application.Common.Models;
 using PMS.Application.ProjectTasks.DTOs;
 using PMS.Domain.Entities;
 
@@ -10,11 +11,16 @@ public class CreateProjectTaskCommandHandler : IRequestHandler<CreateProjectTask
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly INotificationService _notificationService;
 
-    public CreateProjectTaskCommandHandler(IApplicationDbContext context, IMapper mapper)
+    public CreateProjectTaskCommandHandler(
+        IApplicationDbContext context,
+        IMapper mapper,
+        INotificationService notificationService)
     {
         _context = context;
         _mapper = mapper;
+        _notificationService = notificationService;
     }
 
     public async Task<ProjectTaskDto> Handle(CreateProjectTaskCommand request, CancellationToken cancellationToken)
@@ -30,6 +36,18 @@ public class CreateProjectTaskCommandHandler : IRequestHandler<CreateProjectTask
         _context.ProjectTasks.Add(projectTask);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return _mapper.Map<ProjectTaskDto>(projectTask);
+        var result = _mapper.Map<ProjectTaskDto>(projectTask);
+
+        // Send notification to project members
+        await _notificationService.SendToProjectAsync(projectTask.ProjectId, new NotificationDto
+        {
+            Type = nameof(NotificationType.TaskCreated),
+            Title = "New Task Created",
+            Message = $"New task '{projectTask.Title}' has been created",
+            Data = result,
+            ProjectId = projectTask.ProjectId
+        });
+
+        return result;
     }
 }
